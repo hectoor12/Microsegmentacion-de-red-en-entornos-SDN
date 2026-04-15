@@ -1,0 +1,43 @@
+services:
+  ryu:
+    build: ./ryu
+    container_name: ryu_controller
+    ports:
+      - "6633:6633"   # OpenFlow
+      - "6653:6653"   # OpenFlow
+    networks:
+      - sdn_net
+    volumes:
+      - sdn_data:/app/data
+
+  mininet:
+    build: ./mininet
+    container_name: mininet_host
+    privileged: true # CRÍTICO: Necesario para que Mininet manipule la red
+    volumes:
+      - /lib/modules:/lib/modules:ro # CRÍTICO: Necesario para el switch OVS
+    networks:
+      - sdn_net
+    depends_on:
+      - ryu
+    stdin_open: true # Mantiene la consola de Mininet abierta
+    tty: true        # Habilita el terminal interactivo
+
+  dashboard:
+    build: ./dashboard
+    container_name: sdn_dashboard
+    ports:
+      - "8502:8501"   # Puerto por defecto donde Streamlit muestra la web
+    networks:
+      - sdn_net
+    volumes:
+      - sdn_data:/app/data
+    depends_on:
+      - ryu
+
+networks:
+  sdn_net:
+    driver: bridge
+
+volumes:
+  sdn_data:
