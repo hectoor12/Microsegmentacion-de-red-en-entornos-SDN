@@ -1,10 +1,10 @@
 # 🛡️ Microsegmentación de Red en Entornos SDN (Software-Defined Networking)
 
 > **Trabajo de Fin de Grado (TFG)**   
-> **Autor:** [Héctor Muñoz Rubio]  
-> **Universidad/Centro:** [Universidad Autónoma de Madrid]  
-> **Titulación:** [Grado en Ingeniería Informática]  
-> **Fecha:** [Mayo 2026]
+> **Autor:** Héctor Muñoz Rubio  
+> **Universidad/Centro:** Universidad Autónoma de Madrid  
+> **Titulación:** Grado en Ingeniería Informática  
+> **Fecha:** Mayo 2026
 
 ![SDN Concept](https://img.shields.io/badge/SDN-Network_Architecture-blue.svg)
 ![Security](https://img.shields.io/badge/Security-Microsegmentation-red.svg)
