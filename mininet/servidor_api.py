@@ -70,6 +70,7 @@ def _resolve(identifier):
 # ──────────────────────────────────────────────────────────────────────────
 
 @app.route("/ping", methods=["POST"])
+
 def do_ping():
     """
     POST /ping
@@ -165,6 +166,50 @@ def run_tests_endpoint():
         import sys
         sys.stdout = sys.__stdout__
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+_capture_proc = None
+
+@app.route("/capture/start", methods=["POST"])
+def capture_start():
+    global _capture_proc
+    data = request.get_json(force=True)
+    duration = int(data.get("duration", 10))
+    import subprocess
+
+    filename = "/tmp/capture.pcap"
+    try:
+        if _capture_proc is not None and _capture_proc.poll() is None:
+            _capture_proc.terminate() # Terminar captura anterior si sigue viva
+            
+        import os
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        cmd = f"timeout {duration} tcpdump -i any -w {filename}"
+        # Popen lo lanza en segundo plano sin bloquear el hilo
+        _capture_proc = subprocess.Popen(cmd, shell=True)
+        return jsonify({"ok": True, "message": "Captura iniciada en segundo plano"})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/capture/status", methods=["GET"])
+def capture_status():
+    global _capture_proc
+    if _capture_proc is None:
+        return jsonify({"status": "none"})
+    if _capture_proc.poll() is None:
+        return jsonify({"status": "running"})
+    return jsonify({"status": "finished"})
+
+@app.route("/capture/download", methods=["GET"])
+def capture_download():
+    import os
+    from flask import send_file
+    filename = "/tmp/capture.pcap"
+    if os.path.exists(filename):
+        return send_file(filename, as_attachment=True, download_name="captura_ryu.pcap")
+    return jsonify({"ok": False, "error": "No hay archivo de captura"}), 404
 
 
 # ──────────────────────────────────────────────────────────────────────────

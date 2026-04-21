@@ -640,7 +640,7 @@ with tab_logs:
         st.divider()
 
         # ── Descargas ───────────────────────────────────────────────────
-        dl1, dl2 = st.columns(2)
+        dl1, dl2, dl3 = st.columns(3)
         with dl1:
             csv_full = df.to_csv(index=False).encode("utf-8")
             st.download_button(
@@ -664,6 +664,18 @@ with tab_logs:
                 "text/csv",
                 key="dl_csv_resumen",
             )
+        with dl3:
+            if st.button("Eliminar Base de Datos", type="primary", use_container_width=True):
+                try:
+                    conn = sqlite3.connect(db_path)
+                    conn.execute("DELETE FROM logs")
+                    conn.commit()
+                    conn.close()
+                    st.success("Base de datos reiniciada con exito.")
+                    time.sleep(1)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error al borrar DB: {e}")
 
     live_traffic_monitor()
 
@@ -892,6 +904,53 @@ with tab_tools:
             st.code(result.get("output", ""), language="text")
         else:
             st.error(f"Error: {result.get('error', 'Respuesta inesperada')}")
+
+    # ── Captura de Trafico ──────────────────────────────────────
+    st.divider()
+    st.markdown('<p class="section-title">Captura de Trafico en Segundo Plano (.pcap)</p>', unsafe_allow_html=True)
+    st.caption("Captura de forma asíncrona para que no se congele el dashboard mientras haces ping.")
+    
+    col_dur, col_cap = st.columns([1, 2], gap="large")
+    with col_dur:
+        duration = st.number_input("Duracion de captura (segundos)", min_value=1, max_value=60, value=15)
+    
+    with col_cap:
+        st.write("") 
+        st.write("")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Iniciar Captura", type="primary", use_container_width=True):
+                try:
+                    resp = requests.post(f"{MININET_API}/capture/start", json={"duration": duration}, timeout=5)
+                    st.success("Captura iniciada en background. Ahora haz los pings y luego revisa el estado.")
+                except Exception as e:
+                    st.error(f"Error al iniciar captura: {e}")
+        
+        with c2:
+            # Añadido type="primary" para que no quede el boton blanco sobre blanco y se lea perfectamente
+            if st.button("Actualizar y Descargar", type="primary", use_container_width=True):
+                try:
+                    status_resp = requests.get(f"{MININET_API}/capture/status", timeout=5).json()
+                    status = status_resp.get("status", "none")
+                    if status == "running":
+                        st.info("La captura sigue en proceso...")
+                    elif status == "finished":
+                        st.success("Captura finalizada. Puedes descargarla.")
+                        dl_resp = requests.get(f"{MININET_API}/capture/download", timeout=10)
+                        if dl_resp.status_code == 200:
+                            st.session_state["pcap_data_bg"] = dl_resp.content
+                    else:
+                        st.warning("No hay ninguna captura iniciada.")
+                except Exception as e:
+                    st.error(f"Error comprobando estado: {e}")
+                    
+    if "pcap_data_bg" in st.session_state:
+        st.download_button(
+            label="Descargar archivo .pcap",
+            data=st.session_state["pcap_data_bg"],
+            file_name=f"captura_ryu_asincrona.pcap",
+            mime="application/vnd.tcpdump.pcap"
+        )
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  FOOTER GLOBAL

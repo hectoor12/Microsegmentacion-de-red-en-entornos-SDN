@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     iproute2 \
     iputils-ping \
+    tcpdump \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

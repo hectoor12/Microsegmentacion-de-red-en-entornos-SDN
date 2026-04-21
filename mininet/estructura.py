@@ -119,20 +119,20 @@ def setup_vxlan(net):
     s3.cmd(f'ip route add {VTEP_B}/32 via 192.168.100.2')
     s6.cmd(f'ip route add {VTEP_A}/32 via 192.168.100.1')
 
-    s3.cmd('ovs-vsctl del-port s3 vxlan_dc 2>/dev/null; true')
+    s3.cmd('ovs-vsctl del-port s3 vxlan_dc1 2>/dev/null; true')
     s3.cmd(
-        f'ovs-vsctl add-port s3 vxlan_dc '
-        f'-- set interface vxlan_dc type=vxlan '
+        f'ovs-vsctl add-port s3 vxlan_dc1 '
+        f'-- set interface vxlan_dc1 type=vxlan '
         f'options:remote_ip={VTEP_B} '
         f'options:local_ip={VTEP_A} '
         f'options:key=100 '
         f'options:dst_port=4789'
     )
 
-    s6.cmd('ovs-vsctl del-port s6 vxlan_dc 2>/dev/null; true')
+    s6.cmd('ovs-vsctl del-port s6 vxlan_dc2 2>/dev/null; true')
     s6.cmd(
-        f'ovs-vsctl add-port s6 vxlan_dc '
-        f'-- set interface vxlan_dc type=vxlan '
+        f'ovs-vsctl add-port s6 vxlan_dc2 '
+        f'-- set interface vxlan_dc2 type=vxlan '
         f'options:remote_ip={VTEP_A} '
         f'options:local_ip={VTEP_B} '
         f'options:key=100 '
