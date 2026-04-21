@@ -35,8 +35,8 @@ El proyecto se basa en un entorno de laboratorio virtualizado, utilizando las si
 
 | Tecnología | Rol en el Proyecto |
 | :--- | :--- |
-| **[Mininet]** | Emulador de red para crear la topología virtual (switches, hosts y enlaces). |
-| **[Ryu]** | Controlador SDN que actúa como el "cerebro" de la red y gestiona las reglas. |
+| **Mininet** | Emulador de red para crear la topología virtual (switches, hosts y enlaces). |
+| **Ryu** | Controlador SDN que actúa como el "cerebro" de la red y gestiona las reglas. |
 | **Open vSwitch (OVS)** | Conmutadores virtuales compatibles con OpenFlow. |
 | **OpenFlow [v1.3]** | Protocolo de comunicación entre el plano de control (Controlador) y el plano de datos (Switches). |
 | **Python [3.x]** | Lenguaje utilizado para el scripting de la topología y la lógica del controlador. |
